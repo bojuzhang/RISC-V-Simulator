@@ -1,4 +1,5 @@
 #include "memory.hpp"
+#include "basic_operator.hpp"
 #include <cstdint>
 #include <stdexcept>
 
@@ -17,21 +18,17 @@ uint32_t Memory::getPC() {
 }
 
 Operator Memory::getOp(uint32_t pos) {
-    if (!memorypc.count(pos)) {
-        throw std::runtime_error("invalid pos of operator");
-    }
-    return memorypc[pos];
+    uint32_t val = memory[pos] + (memory[pos + 1] << 8) + (memory[pos + 2] << 16) + (memory[pos + 3] << 24);
+    return Operator(val);
 }
 void Memory::addOp(uint32_t pos, const Operator &op) {
-    memorypc[pos] = op;
+    // memory[pos] = op;
+    throw std::runtime_error("deleted ways");
 }
 
 uint8_t Memory::getByte(uint32_t pos) {
-    if (!memoryval.count(pos)) {
-        return 0;
-    }
-    return memoryval[pos];
+    return memory[pos];
 }
 void Memory::writeByte(uint32_t pos, uint8_t val) {
-    memoryval[pos] = val;
+    memory[pos] = val;
 }

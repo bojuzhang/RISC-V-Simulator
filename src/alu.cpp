@@ -50,13 +50,13 @@ void ALU::LB(uint32_t rd, uint32_t rs1, uint32_t imm) {
 }
 void ALU::LH(uint32_t rd, uint32_t rs1, uint32_t imm) {
     int32_t pos = memory.read(rs1) + static_cast<int32_t>(imm);
-    int16_t val = (memory.getByte(pos) << 8) + memory.getByte(pos + 1);
+    int16_t val = (memory.getByte(pos + 1) << 8) + memory.getByte(pos);
     memory.write(rd, val);
 }
 void ALU::LW(uint32_t rd, uint32_t rs1, uint32_t imm) {
     int32_t pos = memory.read(rs1) + static_cast<int32_t>(imm);
-    uint32_t val = (memory.getByte(pos) << 24) + (memory.getByte(pos + 1) << 16)
-                    + (memory.getByte(pos + 2) << 8) + memory.getByte(pos + 3);
+    uint32_t val = (memory.getByte(pos + 3) << 24) + (memory.getByte(pos + 2) << 16)
+                    + (memory.getByte(pos + 1) << 8) + memory.getByte(pos);
     memory.write(rd, val);
 }
 void ALU::LBU(uint32_t rd, uint32_t rs1, uint32_t imm) {
@@ -66,7 +66,7 @@ void ALU::LBU(uint32_t rd, uint32_t rs1, uint32_t imm) {
 }
 void ALU::LHU(uint32_t rd, uint32_t rs1, uint32_t imm) {
     int32_t pos = memory.read(rs1) + static_cast<int32_t>(imm);
-    uint16_t val = (memory.getByte(pos) << 8) + memory.getByte(pos + 1);
+    uint16_t val = (memory.getByte(pos + 1) << 8) + memory.getByte(pos);
     memory.write(rd, val);
 }
 void ALU::ADDI(uint32_t rd, uint32_t rs1, uint32_t imm) {
@@ -121,16 +121,16 @@ void ALU::SB(uint32_t rs1, uint32_t rs2, uint32_t imm) {
 void ALU::SH(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     uint16_t val = (memory.read(rs2) << 16) >> 16;
     int32_t pos = memory.read(rs1) + static_cast<int32_t>(imm);
-    memory.writeByte(pos, val >> 8);
-    memory.writeByte(pos + 1, (val << 8) >> 8);
+    memory.writeByte(pos + 1, val >> 8);
+    memory.writeByte(pos, (val << 8) >> 8);
 }
 void ALU::SW(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     uint32_t val = memory.read(rs2);
     int32_t pos = memory.read(rs1) + static_cast<int32_t>(imm);
-    memory.writeByte(pos, val >> 24);
-    memory.writeByte(pos + 1, (val << 8) >> 24);
-    memory.writeByte(pos + 2, (val << 16) >> 24);
-    memory.writeByte(pos + 3, (val << 24) >> 24);
+    memory.writeByte(pos + 3, val >> 24);
+    memory.writeByte(pos + 2, (val << 8) >> 24);
+    memory.writeByte(pos + 1, (val << 16) >> 24);
+    memory.writeByte(pos, (val << 24) >> 24);
 }
 
 void ALU::JAL(uint32_t rd, uint32_t imm) {
