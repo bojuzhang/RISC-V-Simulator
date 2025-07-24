@@ -4,7 +4,7 @@
 #include <cstdint>
 
 enum class OpType {
-    U, J, IA, IM, IC, B, S, R
+    U, J, IA, IM, IC, B, S, R, EXIT
 };
 
 enum class InsType {
@@ -28,7 +28,7 @@ private:
         for B, 0: rs1; 1: rs2; 2: offset
 
         for J, 0: rd; 1: none; 2: offset
-        
+
         for U, 0: rd; 1: none; 2: offset
     */
     std::array<uint32_t, 3> vals; 
@@ -37,6 +37,7 @@ private:
 
 public:
     Operator(uint32_t) ;
-
-    void tick();
+    OpType Getopt();
+    InsType Getinst();
+    std::array<uint32_t, 3> Getvals();
 };

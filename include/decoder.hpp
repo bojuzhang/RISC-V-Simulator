@@ -9,7 +9,9 @@ OpType GetOpType(uint32_t val);
 InsType GetInsTypeR(uint32_t val);
 InsType GetInsTypeS(uint32_t val);
 InsType GetInsTypeB(uint32_t val);
-InsType GetInsTypeI(uint32_t val);
+InsType GetInsTypeIA(uint32_t val);
+InsType GetInsTypeIM(uint32_t val);
+InsType GetInsTypeIC(uint32_t val);
 InsType GetInsTypeJ(uint32_t val);
 InsType GetInsTypeU(uint32_t val);
 

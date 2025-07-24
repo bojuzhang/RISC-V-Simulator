@@ -22,7 +22,7 @@ OpType GetOpType(uint32_t val) {
     } else if (tp == 0b1100011) {
         return OpType::B;
     }
-    throw std::runtime_error("invalid optype");
+    return OpType::EXIT;
 }
 
 InsType GetInsTypeR(uint32_t val) {

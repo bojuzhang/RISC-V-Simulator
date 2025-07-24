@@ -1,11 +1,16 @@
+#pragma once
+
+
 #include "memory.hpp"
 #include <cstdint>
 
 class ALU {
 private:
-    Memory memory;
+    Memory* memory;
 
 public:
+    ALU(Memory* mem);
+
     void ADD(uint32_t rd, uint32_t rs1, uint32_t rs2);
     void SUB(uint32_t rd, uint32_t rs1, uint32_t rs2);
     void SLL(uint32_t rd, uint32_t rs1, uint32_t rs2);
