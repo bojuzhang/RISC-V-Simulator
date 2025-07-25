@@ -157,9 +157,11 @@ std::array<uint32_t, 3> GetValS(uint32_t val) {
 }
 std::array<uint32_t, 3> GetValB(uint32_t val) {
     std::array<uint32_t, 3> res;
-    res[0] = (val << 20) >> 27;
-    res[1] = (val << 12) >> 27;
-    res[2] = (((val >> 7) & 1) << 11) + (((val >> 8) << 1) & 0x1E) + (((val << 1) >> 26) << 5) + (((val >> 31) & 1) << 12);
+    res[0] = (val << 12) >> 27;
+    res[1] = (val << 7) >> 27;
+    res[2] = (((val >> 7) & 1) << 11) + (((val >> 8) & 0xF) << 1) + (((val >> 25) & 0x3F) << 5) + (((val >> 31) & 1) << 12);
+    // std::cerr << res[0] << " " << res[1] << "\n";
+    // std::cerr << "testB ooooooooooop! " << res[2] << " " << (((val >> 8) & 0xF) << 1) << "\n";
     return res;
 }
 std::array<uint32_t, 3> GetValI(uint32_t val) {

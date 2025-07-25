@@ -1,6 +1,7 @@
 #include "basic_cpu.hpp"
 #include "basic_operator.hpp"
 #include <cstdint>
+#include <fstream>
 #include <ios>
 #include <iostream>
 #include <sstream>
@@ -69,7 +70,7 @@ void BasicCPU::init() {
             uint32_t num;
             ss >> num;
             mem.writeByte(pos, num);
-            // std::cerr << std::dec << pos << " " << num << "\n";
+            // std::cerr << std::dec << pos << " " << num << " " << token << "\n";
             ++pos;
         }
     }
@@ -163,7 +164,7 @@ bool BasicCPU::tick() {
         alu.LUI(vals[0], vals[2]);
     } 
 
-    // mem.write(0, 0);
+    mem.write(0, 0);
     // for (int i = 0; i < 32; i++) {
     //     std::cerr << mem.read(i) << " ";
     // }
@@ -182,6 +183,9 @@ bool BasicCPU::tick() {
 void BasicCPU::main() {
     init();
     while (1) {
+        // std::ifstream tty("/dev/tty");
+        // std::cout << "Press Enter to continue..." << std::flush;
+        // tty.get();  // 等待用户从终端输入
         auto flag = tick();
         if (flag) break;
     }

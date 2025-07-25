@@ -2,6 +2,7 @@
 #include "memory.hpp"
 #include <cstdint>
 #include <iostream>
+#include <ratio>
 
 int32_t sext(uint32_t offset, int32_t bits) {
     if (offset >> (bits - 1)) {
@@ -165,12 +166,18 @@ void ALU::BEQ(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     int32_t offset = sext(imm, 13);
     if (memory->read(rs1) == memory->read(rs2)) {
         memory->move(memory->getPC() + offset);
+    } else {
+        memory->move(memory->getPC() + 4);
     }
 }
 void ALU::BNE(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     int32_t offset = sext(imm, 13);
+    // std::cerr << "dhasgfhsd " << offset << " " << memory->read(rs1) << " " << memory->read(rs2) << "\n";
     if (memory->read(rs1) != memory->read(rs2)) {
         memory->move(memory->getPC() + offset);
+    } else {
+        // std::cerr << "end loop\n";
+        memory->move(memory->getPC() + 4);
     }
 }
 void ALU::BLT(uint32_t rs1, uint32_t rs2, uint32_t imm) {
@@ -178,6 +185,8 @@ void ALU::BLT(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     int32_t v1 = memory->read(rs1), v2 = memory->read(rs2);
     if (v1 < v2) {
         memory->move(memory->getPC() + offset);
+    } else {
+        memory->move(memory->getPC() + 4);
     }
 }
 void ALU::BGE(uint32_t rs1, uint32_t rs2, uint32_t imm) {
@@ -185,6 +194,8 @@ void ALU::BGE(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     int32_t v1 = memory->read(rs1), v2 = memory->read(rs2);
     if (v1 >= v2) {
         memory->move(memory->getPC() + offset);
+    } else {
+        memory->move(memory->getPC() + 4);
     }
 }
 void ALU::BLTU(uint32_t rs1, uint32_t rs2, uint32_t imm) {
@@ -192,6 +203,8 @@ void ALU::BLTU(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     uint32_t v1 = memory->read(rs1), v2 = memory->read(rs2);
     if (v1 < v2) {
         memory->move(memory->getPC() + offset);
+    } else {
+        memory->move(memory->getPC() + 4);
     }
 }
 void ALU::BGEU(uint32_t rs1, uint32_t rs2, uint32_t imm) {
@@ -199,5 +212,7 @@ void ALU::BGEU(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     uint32_t v1 = memory->read(rs1), v2 = memory->read(rs2);
     if (v1 >= v2) {
         memory->move(memory->getPC() + offset);
+    } else {
+        memory->move(memory->getPC() + 4);
     }
 }
