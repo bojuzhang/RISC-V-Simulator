@@ -1,10 +1,12 @@
 #include "basic_operator.hpp"
 #include "decoder.hpp"
 #include <cstdint>
+#include <iostream>
 #include <stdexcept>
 
 OpType GetOpType(uint32_t val) {
     auto tp = (val << 25) >> 25;
+    // std::cerr << tp << "\n";
     if (tp == 0b0110011) {
         return OpType::R;
     } else if (tp == 0b0010011) {
@@ -26,7 +28,7 @@ OpType GetOpType(uint32_t val) {
 }
 
 InsType GetInsTypeR(uint32_t val) {
-    auto func3 = (val << 17) >> 12, func7 = val >> 25;
+    auto func3 = (val << 17) >> 29, func7 = val >> 25;
     if (func3 == 0b000) {
         if (func7 == 0b0000000) {
             return InsType::ADD;
@@ -55,7 +57,7 @@ InsType GetInsTypeR(uint32_t val) {
     throw std::runtime_error("invalid instype");
 }
 InsType GetInsTypeS(uint32_t val) {
-    auto func3 = (val << 17) >> 12;
+    auto func3 = (val << 17) >> 29;
     if (func3 == 0b000) {
         return InsType::SB;
     } else if (func3 == 0b001) {
@@ -66,7 +68,7 @@ InsType GetInsTypeS(uint32_t val) {
     throw std::runtime_error("invalid instype");
 }
 InsType GetInsTypeB(uint32_t val) {
-    auto func3 = (val << 17) >> 12;
+    auto func3 = (val << 17) >> 29;
     if (func3 == 0b000) {
         return InsType::BEQ;
     } else if (func3 == 0b111) {
@@ -83,7 +85,7 @@ InsType GetInsTypeB(uint32_t val) {
     throw std::runtime_error("invalid instype");
 }
 InsType GetInsTypeIA(uint32_t val) {
-    auto func3 = (val << 17) >> 12, func7 = val >> 25;
+    auto func3 = (val << 17) >> 29, func7 = val >> 25;
     if (func3 == 0b000) {
         return InsType::ADDI;
     } else if (func3 == 0b111) {
@@ -108,7 +110,7 @@ InsType GetInsTypeIA(uint32_t val) {
     throw std::runtime_error("invalid instype");
 }
 InsType GetInsTypeIM(uint32_t val) {
-    auto func3 = (val << 17) >> 12, func7 = val >> 25;
+    auto func3 = (val << 17) >> 29, func7 = val >> 25;
     if (func3 == 0b000) {
         return InsType::LB;
     }else if (func3 == 0b100) {
@@ -149,7 +151,8 @@ std::array<uint32_t, 3> GetValS(uint32_t val) {
     std::array<uint32_t, 3> res;
     res[0] = (val << 12) >> 27;
     res[1] = (val << 7) >> 27;
-    res[2] = ((val << 20) >> 27) + (val >> 20);
+    res[2] = ((val << 20) >> 27) + ((val & 0xFE000000) >> 20);
+    // std::cerr << "test ooooooooooops! " << res[2] << " " << ((val << 20) >> 27) << " " << ((val & 0xFE000000) >> 20) << "\n";
     return res;
 }
 std::array<uint32_t, 3> GetValB(uint32_t val) {
@@ -170,7 +173,7 @@ std::array<uint32_t, 3> GetValJ(uint32_t val) {
     std::array<uint32_t, 3> res;
     res[0] = (val << 20) >> 27;
     res[1] = 0;
-    res[2] = (val & 0xFF000) + (1u << ((val >> 20 & 1))) + (((val << 1) >> 22) << 1) + ((val >> 31) << 20);
+    res[2] = (val & 0xFF000) + (((val >> 20 & 1)) << 11) + (((val << 1) >> 22) << 1) + ((val >> 31) << 20);
     return res;
 }
 std::array<uint32_t, 3> GetValU(uint32_t val) {

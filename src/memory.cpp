@@ -1,6 +1,7 @@
 #include "memory.hpp"
 #include "basic_operator.hpp"
 #include <cstdint>
+#include <iostream>
 #include <stdexcept>
 
 uint32_t Memory::read(short pos) {
@@ -19,6 +20,7 @@ uint32_t Memory::getPC() {
 
 Operator Memory::getOp(uint32_t pos) {
     uint32_t val = memory[pos] + (memory[pos + 1] << 8) + (memory[pos + 2] << 16) + (memory[pos + 3] << 24);
+    // std::cerr << "optest: " << pos << " " << val << "\n";
     return Operator(val);
 }
 void Memory::addOp(uint32_t pos, const Operator &op) {

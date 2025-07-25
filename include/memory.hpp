@@ -5,8 +5,8 @@
 #include <unordered_map>
 class Memory {
 private:
-    uint32_t reg[32];
-    uint32_t PC;
+    uint32_t reg[32]{};
+    uint32_t PC{};
 
     std::unordered_map<uint32_t, uint8_t> memory;
 
