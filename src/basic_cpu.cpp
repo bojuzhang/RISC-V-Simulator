@@ -165,6 +165,7 @@ bool BasicCPU::tick() {
     } 
 
     mem.write(0, 0);
+
     // for (int i = 0; i < 32; i++) {
     //     std::cerr << mem.read(i) << " ";
     // }
@@ -182,7 +183,7 @@ bool BasicCPU::tick() {
 }
 void BasicCPU::main() {
     init();
-    while (1) {
+    while(1) {
         // std::ifstream tty("/dev/tty");
         // std::cout << "Press Enter to continue..." << std::flush;
         // tty.get();  // 等待用户从终端输入

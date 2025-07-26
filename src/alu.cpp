@@ -107,15 +107,18 @@ void ALU::ANDI(uint32_t rd, uint32_t rs1, uint32_t imm) {
     memory->write(rd, val);
 }
 void ALU::SLLI(uint32_t rd, uint32_t rs1, uint32_t imm) {
+    imm &= 0x1F;
     auto val = memory->read(rs1) << imm;
     memory->write(rd, val);
 }
 void ALU::SRLI(uint32_t rd, uint32_t rs1, uint32_t imm) {
+    imm &= 0x1F;
     uint32_t v1 = memory->read(rs1);
     auto val = v1 >> imm;
     memory->write(rd, val);
 }
 void ALU::SRAI(uint32_t rd, uint32_t rs1, uint32_t imm) {
+    imm &= 0x1F;
     int32_t v1 = memory->read(rs1);
     auto val = v1 >> imm;
     memory->write(rd, val);
@@ -128,18 +131,18 @@ void ALU::JALR(uint32_t rd, uint32_t rs1, uint32_t imm) {
 
 void ALU::SB(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     uint8_t val = (memory->read(rs2) << 24) >> 24;
-    int32_t pos = memory->read(rs1) + static_cast<int32_t>(imm);
+    int32_t pos = memory->read(rs1) + sext(imm, 12);
     memory->writeByte(pos, val);
 }
 void ALU::SH(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     uint16_t val = (memory->read(rs2) << 16) >> 16;
-    int32_t pos = memory->read(rs1) + static_cast<int32_t>(imm);
+    int32_t pos = memory->read(rs1) + sext(imm, 12);
     memory->writeByte(pos + 1, val >> 8);
     memory->writeByte(pos, (val << 8) >> 8);
 }
 void ALU::SW(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     uint32_t val = memory->read(rs2);
-    int32_t pos = memory->read(rs1) + static_cast<int32_t>(imm);
+    int32_t pos = memory->read(rs1) + sext(imm, 12);
     memory->writeByte(pos + 3, val >> 24);
     memory->writeByte(pos + 2, (val << 8) >> 24);
     memory->writeByte(pos + 1, (val << 16) >> 24);
@@ -153,8 +156,8 @@ void ALU::JAL(uint32_t rd, uint32_t imm) {
 }
     
 void ALU::LUI(uint32_t rd, uint32_t imm) {
-    int32_t offset = sext(imm, 32);
-    memory->write(rd, offset);
+    // int32_t offset = sext(imm, 32);
+    memory->write(rd, imm);
 }
 void ALU::AUIPC(uint32_t rd, uint32_t imm) {
     int32_t pc = memory->getPC(), offset = sext(imm, 32);
@@ -172,11 +175,9 @@ void ALU::BEQ(uint32_t rs1, uint32_t rs2, uint32_t imm) {
 }
 void ALU::BNE(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     int32_t offset = sext(imm, 13);
-    // std::cerr << "dhasgfhsd " << offset << " " << memory->read(rs1) << " " << memory->read(rs2) << "\n";
     if (memory->read(rs1) != memory->read(rs2)) {
         memory->move(memory->getPC() + offset);
     } else {
-        // std::cerr << "end loop\n";
         memory->move(memory->getPC() + 4);
     }
 }

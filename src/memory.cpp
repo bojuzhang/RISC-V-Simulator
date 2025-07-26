@@ -32,5 +32,6 @@ uint8_t Memory::getByte(uint32_t pos) {
     return memory[pos];
 }
 void Memory::writeByte(uint32_t pos, uint8_t val) {
+    // std::cout << "mem: " << pos << " " << (uint32_t)val << "\n";
     memory[pos] = val;
 }
