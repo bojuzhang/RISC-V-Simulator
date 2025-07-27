@@ -8,7 +8,7 @@ private:
     uint32_t reg[32]{};
     uint32_t PC{};
 
-    std::unordered_map<uint32_t, uint8_t> memory;
+    uint8_t memory[1048576];
 
 public:
     uint32_t read(short pos);
