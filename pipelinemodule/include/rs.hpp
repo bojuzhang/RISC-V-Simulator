@@ -16,6 +16,9 @@ struct RSData {
     
     uint32_t imm = 0;
     FUType fu_type;
+
+    int32_t remcir = 0;
+    bool executing = false;
 };
 
 class RS {
@@ -25,13 +28,14 @@ private:
 
 public:
     RS(int32_t);
+    ~RS();
 
-    int allocate(InsType, uint32_t, uint32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t, FUType);
+    int allocate(const RSData &data);
 
     RSData get(int32_t);
     void free(int32_t);
 
-    bool isread(int32_t);
+    bool isready(int32_t);
 
     void doit(int32_t, int32_t, uint32_t);
 };

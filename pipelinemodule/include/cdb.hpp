@@ -2,7 +2,7 @@
 #include <cstdint>
 
 struct CDBData {
-    int32_t idx = -1;
+    int32_t robidx = -1, rsidx = -1;
     uint32_t result = 0;
     bool valid = false;
 };
@@ -12,9 +12,9 @@ private:
     CDBData cdb;
     
 public:
-    void broadcast(int32_t rob_index, uint32_t result);
+    void broadcast(int32_t, int32_t, uint32_t);
     
-    bool has_data();
+    bool has();
     
-    CDBData get_data();
+    CDBData getdata();
 };
