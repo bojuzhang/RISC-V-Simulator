@@ -41,3 +41,5 @@ public:
     InsType Getinst();
     std::array<uint32_t, 3> Getvals();
 };
+
+int32_t sext(uint32_t offset, int32_t bits);

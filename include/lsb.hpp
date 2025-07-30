@@ -1,10 +1,11 @@
 #pragma once
 
 #include "basic_operator.hpp"
+#include "memory.hpp"
 #include "rob.hpp"
 #include <cstdint>
 
-class LSBData {
+struct LSBData {
     InsType ins;
     uint32_t vj = 0, vk = 0;
     int32_t qj = -1, qk = -1;
@@ -21,10 +22,11 @@ private:
     int nexthead, nexttail;
 
     ROB *rob;
+    Memory *mem;
 
 public:
 
-    void link(ROB *);
+    void link(ROB *, Memory *);
 
     void run();
     void update();

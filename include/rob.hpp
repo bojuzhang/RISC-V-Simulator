@@ -38,8 +38,6 @@ public:
 
     void clear();
 
-    void modifyvalue(int32_t, int32_t);
-    void modifystate(int32_t, ROBSTATE);
-    void addcir(int32_t, int32_t);
-    void modifypos(int32_t, int32_t);
+    ROBData queryData(int32_t);
+    void modifyData(int32_t, const ROBData &);
 };

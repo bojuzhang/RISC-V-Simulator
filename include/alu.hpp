@@ -1,9 +1,7 @@
 #pragma once
 
 #include <cstdint>
-class ALU {
-private:
-    int32_t sext(uint32_t offset, int32_t bits);
+class ALU {    
 public:
     uint32_t ADD(uint32_t rs1, uint32_t rs2);
     uint32_t SUB(uint32_t rs1, uint32_t rs2);
