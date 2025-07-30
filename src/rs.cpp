@@ -78,11 +78,11 @@ void RS::run(int32_t nowpc) {
         auto p = now[i];
         if (p.qj == -1 || p.qk == -1) continue;
         auto res = calc(p.ins, p.vj, p.vk, p.imm);
-        auto cur = rob->queryData(p.dest)
-        ;cur.val = res;
-        if (p.ins == InsType::JAL || p.ins == InsType::JALR) {
-            cur.newpc = nowpc + 4;
-        }
+        auto cur = rob->queryData(p.dest);
+        cur.val = res;
+        // if (p.ins == InsType::JAL || p.ins == InsType::JALR) {
+        //     cur.newpc = nowpc + 4;
+        // }
         cur.nowcir = 1;
         cur.state = ROBSTATE::WRITE;
         visnow[i] = 1;
