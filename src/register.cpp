@@ -27,3 +27,9 @@ void Register::update() {
         depnow[i] = depnext[i];
     }
 }
+
+void Register::clear() {
+    for (int i = 0; i < 32; i++) {
+        depnow[i] = depnext[i] = -1;
+    }
+}

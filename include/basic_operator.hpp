@@ -36,6 +36,7 @@ private:
     InsType ins;
 
 public:
+    Operator() = default;
     Operator(uint32_t) ;
     OpType Getopt();
     InsType Getinst();

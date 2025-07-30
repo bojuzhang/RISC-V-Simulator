@@ -27,7 +27,7 @@ private:
 public:
     void link(ROB *, Memory *);
 
-    void run(int32_t);
+    void run();
     void update();
 
     void clear();

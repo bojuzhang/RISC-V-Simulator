@@ -19,4 +19,6 @@ public:
     void updatedep(short pos, int32_t val);
 
     void update();
+
+    void clear();
 };

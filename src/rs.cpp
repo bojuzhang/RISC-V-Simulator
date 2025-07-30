@@ -9,7 +9,7 @@ void RS::link(ROB *rob_, Memory *mem_) {
     mem = mem_;
 }
 
-void RS::run(int32_t nowpc) {
+void RS::run() {
     auto calc = [&](InsType ins, uint32_t vj, uint32_t vk, int32_t imm) {
         uint32_t res = 0;
         if (ins == InsType::ADD) {
