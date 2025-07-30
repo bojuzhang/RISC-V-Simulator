@@ -14,6 +14,7 @@ struct ROBData {
     int32_t dest = -1;
     int32_t val = 0;
     int32_t valpos = 0;
+    int32_t newpc = 0;
     int32_t nowcir = 0;
 };
 

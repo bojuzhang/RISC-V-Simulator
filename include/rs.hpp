@@ -1,9 +1,10 @@
 #pragma once
 
 #include "basic_operator.hpp"
+#include "memory.hpp"
 #include "rob.hpp"
 #include <cstdint>
-class RSData {
+struct RSData {
     InsType ins;
     uint32_t vj = 0, vk = 0;
     int32_t qj = -1, qk = -1;
@@ -13,23 +14,26 @@ class RSData {
 
 class ROB;
 
+
+// designed from discussion with konpaku-ming
 class RS {
 private:
     RSData now[32], next[32];
-    bool visnow[32], visnext[32];
+    bool visnow[32]{}, visnext[32]{};
 
     ROB *rob;
+    Memory *mem;
 
 public:
-    void link(ROB *);
+    void link(ROB *, Memory *);
 
-    void run();
+    void run(int32_t);
     void update();
 
     void clear();
 
     bool full();
-    void addData(const RSData &);
+    int addData(const RSData &);
 
     void delDep(int32_t, uint32_t);
 };
