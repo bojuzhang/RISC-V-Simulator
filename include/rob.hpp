@@ -38,11 +38,11 @@ private:
     LSB *lsb;
     Memory *mem;
 
-    Predictor predictor;
-
-    int pc, nextpc;
+    Predictor predictor;  
 
 public:
+    int pc, nextpc;
+
     void link(Register *, RS *, LSB *, Memory *);
 
     void run();

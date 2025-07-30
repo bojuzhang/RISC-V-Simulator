@@ -13,6 +13,7 @@ void ROB::link(Register *reg_, RS *rs_, LSB *lsb_, Memory *mem_) {
 }
 
 void ROB::run() {
+    addOP();
     if (nowhead == nowtail) return;
     auto p = now[nowhead];
     if (p.state == ROBSTATE::COMMIT) {

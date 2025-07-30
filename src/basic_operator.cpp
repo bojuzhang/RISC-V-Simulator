@@ -40,3 +40,10 @@ InsType Operator::Getinst() {
 std::array<uint32_t, 3> Operator::Getvals() {
     return vals;
 }
+
+int32_t sext(uint32_t offset, int32_t bits) {
+    if (offset >> (bits - 1)) {
+        offset |= (~0u << bits);
+    }
+    return static_cast<int32_t>(offset);
+}
