@@ -29,6 +29,7 @@ void Register::update() {
         // std::cerr << regnow[i] << " ";
     }
     // std::cerr << "\n";
+    regnow[0] = regnext[0] = 0;
 }
 
 void Register::clear() {

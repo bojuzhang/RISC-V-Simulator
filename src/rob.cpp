@@ -19,6 +19,10 @@ void ROB::run() {
     auto p = now[nowhead];
     // std::cerr << (int)p.state << " " << p.pospc << " " << to_string(p.op.Getinst()) << " " << p.op.Getvals()[0] << " " << p.op.Getvals()[1] << " " << p.op.Getvals()[2] << "\n";
      if (p.state == ROBSTATE::COMMIT) {
+        // for (int i = 0; i < 32; i++) {
+        //     std::cout << reg->read(i) << " ";
+        // }
+        // std::cout << "\n";
         auto updval = [&](int32_t dest, int32_t val) {
             if (dest != -1) {
                 if (reg->getdep(dest) == nowhead) {
@@ -55,6 +59,7 @@ void ROB::run() {
             }
             updval(p.op.Getvals()[0], p.pospc + 4);
         } else if (p.op.Getinst() == InsType::JAL) {
+            // std::cerr << "JAL " << p.op.Getvals()[0] << " " << p.pospc << "\n";
             updval(p.op.Getvals()[0], p.pospc + 4);
         } else {
             updval(p.op.Getvals()[0], p.val);
@@ -128,6 +133,7 @@ void ROB::update() {
     //     std::cerr << i << " " << to_string(next[i].op.Getinst()) << " " << (int)next[i].state << "\n";
     // }
 
+    // std::cerr << "rob: " << nexthead << " " << nexttail << "\n";
     for (int i = 0; i < 32; i++) {
         now[i] = next[i];
     }

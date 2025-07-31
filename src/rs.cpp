@@ -2,6 +2,7 @@
 #include "basic_operator.hpp"
 #include "alu.hpp"
 #include "rob.hpp"
+#include <cassert>
 #include <cstdint>
 #include <iostream>
 
