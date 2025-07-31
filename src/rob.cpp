@@ -17,7 +17,8 @@ void ROB::run() {
     addOP();
     if (nowhead == nowtail) return;
     auto p = now[nowhead];
-    if (p.state == ROBSTATE::COMMIT) {
+    // std::cerr << (int)p.state << " " << p.pospc << " " << to_string(p.op.Getinst()) << " " << p.op.Getvals()[0] << " " << p.op.Getvals()[1] << " " << p.op.Getvals()[2] << "\n";
+     if (p.state == ROBSTATE::COMMIT) {
         auto updval = [&](int32_t dest, int32_t val) {
             if (dest != -1) {
                 if (reg->getdep(dest) == nowhead) {
@@ -91,6 +92,9 @@ void ROB::run() {
             data.imm = p.op.Getvals()[2];
             data.dest = nowhead;
             auto rs1 = p.op.Getvals()[1], rs2 = p.op.Getvals()[2];
+            if (p.op.Getopt() == OpType::B) {
+                rs1 = p.op.Getvals()[0], rs2 = p.op.Getvals()[1];
+            }
             auto work = [&](int32_t &q, uint32_t &v, uint32_t rs) {
                 int dep = reg->getdep(rs);
                 if (dep == -1) {
@@ -145,6 +149,7 @@ void ROB::modifyData(int32_t idx, const ROBData &data) {
 
 void ROB::addOP() {
     if ((nexttail + 1) % 32 == nexthead) return;
+    
     Operator op = mem->getOp(pc);
     ROBData data;
     data.op = op;
@@ -158,6 +163,7 @@ void ROB::addOP() {
     } else {
         nextpc = pc + 4;
     }
+    // std::cerr << pc << " " << nextpc << " " << to_string(op.Getinst()) << "\n";
     next[nexttail] = data;
     nexttail = (nexttail + 1) % 32;
 }
