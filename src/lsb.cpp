@@ -17,48 +17,15 @@ void LSB::run() {
     auto p = now[nowhead];
     if (p.qj != -1 || p.qk != -1) return;
     int32_t pos = p.vj + p.imm;
-    auto workL = [&](int32_t bit, bool issigned) {
-        auto cur = rob->queryData(p.dest);
-        cur.nowcir++;
-        if (cur.nowcir == 3) {
-            int32_t val;
-            if (issigned) {
-                val = sext(mem->load(pos, bit / 8), bit);
-            } else {
-                val = mem->load(pos, bit / 8);
-            }
-            cur.val = val;
-            cur.state = ROBSTATE::WRITE;
-            nexthead = (nexthead + 1) % 32;
-        }
-        rob->modifyData(p.dest, cur);
-    };
-    auto workS = [&]() {
-        auto cur = rob->queryData(p.dest);
-        cur.nowcir++;
-        if (cur.nowcir == 3) {
-            cur.val = p.vk;
-            cur.valpos = pos;
-            cur.state = ROBSTATE::WRITE;
-            nexthead++;
-        }
-        rob->modifyData(p.dest, cur);
-    };
-    if (p.ins == InsType::LB) {
-        workL(8, 1);
-    } else if (p.ins == InsType::LH) {
-        workL(16, 1);
-    } else if (p.ins == InsType::LW) {
-        workL(32, 1);
-    } else if (p.ins == InsType::LBU) {
-        workL(8, 0);
-    } else if (p.ins == InsType::LHU) {
-        workL(16, 0);
-    } else if (p.ins == InsType::SB || p.ins == InsType::SW || p.ins == InsType::SH) {
-        workS();
-    } else {
-        throw std::runtime_error("invalid lsb-instype");
+    auto cur = rob->queryData(p.dest);
+    cur.nowcir++;
+    if (cur.nowcir == 3) {
+        cur.val = p.vk;
+        cur.valpos = pos;
+        cur.state = ROBSTATE::WRITE;
+        nexthead++;
     }
+    rob->modifyData(p.dest, cur);
 }
 void LSB::update() {
     // std::cerr << "lsb: " << nexthead << " " << nexttail << "\n";

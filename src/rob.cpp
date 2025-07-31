@@ -19,10 +19,10 @@ void ROB::run() {
     auto p = now[nowhead];
     // std::cerr << (int)p.state << " " << p.pospc << " " << to_string(p.op.Getinst()) << " " << p.op.Getvals()[0] << " " << p.op.Getvals()[1] << " " << p.op.Getvals()[2] << "\n";
      if (p.state == ROBSTATE::COMMIT) {
-        // for (int i = 0; i < 32; i++) {
-        //     std::cout << reg->read(i) << " ";
-        // }
-        // std::cout << "\n";
+        for (int i = 0; i < 32; i++) {
+            std::cout << reg->read(i) << " ";
+        }
+        std::cout << "\n";
         auto updval = [&](int32_t dest, int32_t val) {
             if (dest != -1) {
                 if (reg->getdep(dest) == nowhead) {
@@ -47,6 +47,21 @@ void ROB::run() {
             mem->store(p.valpos, p.val, 2);
         } else if (p.op.Getinst() == InsType::SW) {
             mem->store(p.valpos, p.val, 4);
+        } else if (p.op.Getinst() == InsType::LB) {
+            auto val = sext(mem->load(p.valpos, 1), 8);
+            updval(p.op.Getvals()[0], val);
+        } else if (p.op.Getinst() == InsType::LH) {
+            auto val = sext(mem->load(p.valpos, 2), 16);
+            updval(p.op.Getvals()[0], val);
+        } else if (p.op.Getinst() == InsType::LW) {
+            auto val = static_cast<int32_t>(mem->load(p.valpos, 4));
+            updval(p.op.Getvals()[0], val);
+        } else if (p.op.Getinst() == InsType::LBU) {
+            auto val = mem->load(p.valpos, 1);
+            updval(p.op.Getvals()[0], val);
+        } else if (p.op.Getinst() == InsType::LHU) {
+            auto val = mem->load(p.valpos, 2);
+            updval(p.op.Getvals()[0], val);
         } else if (p.op.Getinst() == InsType::JALR) {
             if (p.val != p.predictpc) {
                 // std::cerr << "JALR " << p.val << " " << p.predictpc << "\n";
