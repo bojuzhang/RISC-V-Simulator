@@ -27,9 +27,9 @@ void LSB::run() {
             }
             cur.val = val;
             cur.state = ROBSTATE::WRITE;
-            rob->modifyData(p.dest, cur);
             nexthead++;
         }
+        rob->modifyData(p.dest, cur);
     };
     auto workS = [&]() {
         auto cur = rob->queryData(p.dest);
@@ -38,9 +38,9 @@ void LSB::run() {
             cur.val = p.vk;
             cur.valpos = pos;
             cur.state = ROBSTATE::WRITE;
-            rob->modifyData(p.dest, cur);
             nexthead++;
         }
+        rob->modifyData(p.dest, cur);
     };
     if (p.ins == InsType::LB) {
         workL(8, 1);
@@ -79,7 +79,8 @@ void LSB::addData(const LSBData &data) {
 }
 
 void LSB::delDep(int32_t idx, uint32_t val) {
-    for (int i = nexthead; i < nexttail; i = (i + 1) % 32) {
+    if (nexthead == nexttail) return;
+    for (int i = nexthead; (i + 1) % 32 != nexttail; i = (i + 1) % 32) {
         auto &p = next[i];
         if (p.qj == idx) {
             p.qj = -1;

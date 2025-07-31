@@ -14,13 +14,13 @@ enum class ROBSTATE {
 struct ROBData {
     ROBSTATE state = ROBSTATE::ISSUE;
     Operator op;
-    int32_t dest = -1;
+    // int32_t dest = -1;
     int32_t val = 0;
     int32_t valpos = 0;
     // int32_t newpc = 0;
     int32_t nowcir = 0;
 
-    bool predicted;
+    int32_t predictpc, calcpc;
     int32_t pospc;
 };
 

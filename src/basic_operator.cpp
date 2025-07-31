@@ -47,3 +47,51 @@ int32_t sext(uint32_t offset, int32_t bits) {
     }
     return static_cast<int32_t>(offset);
 }
+
+const char* to_string(InsType type) {
+    switch (type) {
+        case InsType::ADD: return "ADD";
+        case InsType::SUB: return "SUB";
+        case InsType::SLL: return "SLL";
+        case InsType::SLT: return "SLT";
+        case InsType::SLTU: return "SLTU";
+        case InsType::XOR: return "XOR";
+        case InsType::SRL: return "SRL";
+        case InsType::SRA: return "SRA";
+        case InsType::OR: return "OR";
+        case InsType::AND: return "AND";
+
+        case InsType::LB: return "LB";
+        case InsType::LH: return "LH";
+        case InsType::LW: return "LW";
+        case InsType::LBU: return "LBU";
+        case InsType::LHU: return "LHU";
+        case InsType::ADDI: return "ADDI";
+        case InsType::SLTI: return "SLTI";
+        case InsType::SLTIU: return "SLTIU";
+        case InsType::XORI: return "XORI";
+        case InsType::ORI: return "ORI";
+        case InsType::ANDI: return "ANDI";
+        case InsType::SLLI: return "SLLI";
+        case InsType::SRLI: return "SRLI";
+        case InsType::SRAI: return "SRAI";
+        case InsType::JALR: return "JALR";
+
+        case InsType::SB: return "SB";
+        case InsType::SH: return "SH";
+        case InsType::SW: return "SW";
+
+        case InsType::BEQ: return "BEQ";
+        case InsType::BNE: return "BNE";
+        case InsType::BLT: return "BLT";
+        case InsType::BGE: return "BGE";
+        case InsType::BLTU: return "BLTU";
+        case InsType::BGEU: return "BGEU";
+
+        case InsType::JAL: return "JAL";
+        case InsType::LUI: return "LUI";
+        case InsType::AUIPC: return "AUIPC";
+
+        default: return "UNKNOWN";
+    }
+}

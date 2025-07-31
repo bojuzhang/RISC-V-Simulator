@@ -100,49 +100,49 @@ uint32_t AUIPC(uint32_t rs1, uint32_t imm) {
 }
 
 
-uint32_t BEQ(uint32_t rs1, uint32_t rs2) {
+uint32_t BEQ(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     if (rs1 == rs2) {
-        return 1;
+        return sext(imm, 13);
     } else {
-        return 0;
+        return 4;
     }
 }
-uint32_t BNE(uint32_t rs1, uint32_t rs2) {
+uint32_t BNE(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     if (rs1 != rs2) {
-        return 1;
+        return sext(imm, 13);
     } else {
-        return 0;
+        return 4;
     }
 }
-uint32_t BLT(uint32_t rs1, uint32_t rs2) {
+uint32_t BLT(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     int32_t v1 = rs1, v2 = rs2;
     if (v1 < v2) {
-        return 1;
+        return sext(imm, 13);
     } else {
-        return 0;
+        return 4;
     }
 }
-uint32_t BGE(uint32_t rs1, uint32_t rs2) {
+uint32_t BGE(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     int32_t v1 = rs1, v2 = rs2;
     if (v1 >= v2) {
-        return 1;
+        return sext(imm, 13);
     } else {
-        return 0;
+        return 4;
     }
 }
-uint32_t BLTU(uint32_t rs1, uint32_t rs2) {
+uint32_t BLTU(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     uint32_t v1 = rs1, v2 = rs2;
     if (v1 < v2) {
-        return 1;
+        return sext(imm, 13);
     } else {
-        return 0;
+        return 4;
     }
 }
-uint32_t BGEU(uint32_t rs1, uint32_t rs2) {
+uint32_t BGEU(uint32_t rs1, uint32_t rs2, uint32_t imm) {
     uint32_t v1 = rs1, v2 = rs2;
     if (v1 >= v2) {
-        return 1;
+        return sext(imm, 13);
     } else {
-        return 0;
+        return 4;
     }
 }

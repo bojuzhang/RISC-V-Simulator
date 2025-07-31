@@ -3,6 +3,7 @@
 #include "alu.hpp"
 #include "rob.hpp"
 #include <cstdint>
+#include <iostream>
 
 void RS::link(ROB *rob_, Memory *mem_) {
     rob = rob_;
@@ -51,17 +52,17 @@ void RS::run() {
         } else if (ins == InsType::SLTIU) {
             res = SLTIU(vj, imm);
         } else if (ins == InsType::BEQ) {
-            res = BEQ(vj, vk);
+            res = BEQ(vj, vk, imm);
         } else if (ins == InsType::BGE) {
-            res = BGE(vj, vk);
+            res = BGE(vj, vk, imm);
         } else if (ins == InsType::BGEU) {
-            res = BGEU(vj, vk);
+            res = BGEU(vj, vk, imm);
         } else if (ins == InsType::BLT) {
-            res = BLT(vj, vk);
+            res = BLT(vj, vk, imm);
         } else if (ins == InsType::BLTU) {
-            res = BLTU(vj, vk);
+            res = BLTU(vj, vk, imm);
         } else if (ins == InsType::BNE) {
-            res = BNE(vj, vk);
+            res = BNE(vj, vk, imm);
         } else if (ins == InsType::JAL) {
             res = JAL(vj, imm);
         } else if (ins == InsType::JALR) {
@@ -76,16 +77,19 @@ void RS::run() {
     for (int i = 0; i < 32; i++) {
         if (!visnow[i]) continue;
         auto p = now[i];
-        if (p.qj == -1 || p.qk == -1) continue;
+        if (p.qj != -1 || p.qk != -1) continue;
         auto res = calc(p.ins, p.vj, p.vk, p.imm);
+        // std::cerr << to_string(p.ins) << " " << p.vj << " " << p.vk << " " << p.imm << '\n';
         auto cur = rob->queryData(p.dest);
         cur.val = res;
-        // if (p.ins == InsType::JAL || p.ins == InsType::JALR) {
-        //     cur.newpc = nowpc + 4;
-        // }
+        if (p.ins == InsType::BEQ || p.ins == InsType::BGE || p.ins == InsType::BGEU
+        || p.ins == InsType::BLT || p.ins == InsType::BLTU || p.ins == InsType::BNE) {
+            cur.val += cur.pospc;
+        }
         cur.nowcir = 1;
         cur.state = ROBSTATE::WRITE;
-        visnow[i] = 1;
+        rob->modifyData(p.dest, cur);
+        visnext[i] = 0;
     }
 }
 void RS::update() {
@@ -113,6 +117,7 @@ int RS::addData(const RSData &data) {
     for (int i = 0; i < 32; i++) {
         if (!visnext[i]) {
             next[i] = data;
+            visnext[i] = 1;
             return i;
         }
     }

@@ -4,6 +4,7 @@
 #include "register.hpp"
 #include "rs.hpp"
 #include <cstdint>
+#include <iostream>
 
 void ROB::link(Register *reg_, RS *rs_, LSB *lsb_, Memory *mem_) {
     reg = reg_;
@@ -26,13 +27,9 @@ void ROB::run() {
             }
         };
         if (p.op.Getopt() == OpType::B) {
-            predictor.update(p.val);
-            if (p.val != p.predicted) {
-                if (p.val) {
-                    nextpc = p.pospc + sext(p.op.Getvals()[2], 13);
-                } else {
-                    nextpc = p.pospc + 4;
-                }
+            predictor.update(p.val == p.predictpc);
+            if (p.val != p.predictpc) {
+                nextpc = p.val;
                 clear();
                 reg->clear();
                 rs->clear();
@@ -46,19 +43,29 @@ void ROB::run() {
         } else if (p.op.Getinst() == InsType::SW) {
             mem->store(p.valpos, p.val, 4);
         } else if (p.op.Getinst() == InsType::JALR) {
-            nextpc = p.valpos;
-            updval(p.dest, p.val);
+            if (p.val != p.predictpc) {
+                // std::cerr << "JALR " << p.val << " " << p.predictpc << "\n";
+                nextpc = p.val;
+                clear();
+                reg->clear();
+                rs->clear();
+                lsb->clear();
+                return;
+            }
+            updval(p.op.Getvals()[0], p.pospc + 4);
+        } else if (p.op.Getinst() == InsType::JAL) {
+            updval(p.op.Getvals()[0], p.pospc + 4);
         } else {
-            updval(p.dest, p.val);
+            updval(p.op.Getvals()[0], p.val);
         }
+        nexthead = (nexthead + 1) % 32;
     } else if (p.state == ROBSTATE::ISSUE) {
-        p.state = ROBSTATE::EXEC;
         if (p.op.Getopt() == OpType::S || p.op.Getopt() == OpType::IM) {
             LSBData data;
             data.ins = p.op.Getinst();
             data.imm = p.op.Getvals()[2];
             data.dest = nowhead;
-            auto rs1 = p.op.Getvals()[0], rs2 = p.op.Getvals()[1];
+            
             auto work = [&](int32_t &q, uint32_t &v, uint32_t rs) {
                 int dep = reg->getdep(rs);
                 if (dep == -1) {
@@ -71,9 +78,11 @@ void ROB::run() {
                     }
                 }
             };
-            work(data.qj, data.vj, rs1);
             if (p.op.Getopt() == OpType::S) {
-                work(data.qk, data.vk, rs2);
+                work(data.qj, data.vj, p.op.Getvals()[0]);
+                work(data.qk, data.vk, p.op.Getvals()[1]);
+            } else {
+                work(data.qj, data.vj, p.op.Getvals()[1]);
             }
             lsb->addData(data);
         } else {
@@ -81,7 +90,7 @@ void ROB::run() {
             data.ins = p.op.Getinst();
             data.imm = p.op.Getvals()[2];
             data.dest = nowhead;
-            auto rs1 = p.op.Getvals()[0], rs2 = p.op.Getvals()[1];
+            auto rs1 = p.op.Getvals()[1], rs2 = p.op.Getvals()[2];
             auto work = [&](int32_t &q, uint32_t &v, uint32_t rs) {
                 int dep = reg->getdep(rs);
                 if (dep == -1) {
@@ -102,6 +111,7 @@ void ROB::run() {
         }
         next[nowhead].state = ROBSTATE::EXEC;
     } else if (p.state == ROBSTATE::WRITE) {
+        // std::cerr << "WRITE STAGE\n";
         next[nowhead].state = ROBSTATE::COMMIT;
         // if (p.dest == -1) return;
         lsb->delDep(nowhead, p.val);
@@ -109,6 +119,11 @@ void ROB::run() {
     }
 }
 void ROB::update() {
+    // std::cerr << nexthead << " " << nexttail << "\n";
+    // for (int i = nexthead; (i + 1) % 32 != nexttail; i = (i + 1) % 32) {
+    //     std::cerr << i << " " << to_string(next[i].op.Getinst()) << " " << (int)next[i].state << "\n";
+    // }
+
     for (int i = 0; i < 32; i++) {
         now[i] = next[i];
     }
@@ -134,9 +149,10 @@ void ROB::addOP() {
     ROBData data;
     data.op = op;
     data.pospc = pc;
-    data.predicted = predictor.predict();
+    auto predicted =  predictor.predict();
     if (op.Getopt() == OpType::B) {
-        nextpc = data.predicted ? pc + sext(op.Getvals()[2], 13) : pc + 4;
+        nextpc = predicted ? pc + sext(op.Getvals()[2], 13) : pc + 4;
+        data.predictpc = nextpc;
     } else if (op.Getinst() == InsType::JAL) {
         nextpc = pc + sext(op.Getvals()[2], 21);
     } else {

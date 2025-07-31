@@ -23,12 +23,12 @@ uint32_t SLLI(uint32_t rs1, uint32_t imm);
 uint32_t SRLI(uint32_t rs1, uint32_t imm);
 uint32_t SRAI(uint32_t rs1, uint32_t imm);
 
-uint32_t BEQ(uint32_t rs1, uint32_t rs2);
-uint32_t BNE(uint32_t rs1, uint32_t rs2);
-uint32_t BLT(uint32_t rs1, uint32_t rs2);
-uint32_t BGE(uint32_t rs1, uint32_t rs2);
-uint32_t BLTU(uint32_t rs1, uint32_t rs2);
-uint32_t BGEU(uint32_t rs1, uint32_t rs2);
+uint32_t BEQ(uint32_t rs1, uint32_t rs2, uint32_t imm);
+uint32_t BNE(uint32_t rs1, uint32_t rs2, uint32_t imm);
+uint32_t BLT(uint32_t rs1, uint32_t rs2, uint32_t imm);
+uint32_t BGE(uint32_t rs1, uint32_t rs2, uint32_t imm);
+uint32_t BLTU(uint32_t rs1, uint32_t rs2, uint32_t imm);
+uint32_t BGEU(uint32_t rs1, uint32_t rs2, uint32_t imm);
 
 uint32_t JAL(uint32_t rs1, uint32_t imm);
 uint32_t JALR(uint32_t rs1, uint32_t imm);

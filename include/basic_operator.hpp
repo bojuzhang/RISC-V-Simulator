@@ -44,3 +44,5 @@ public:
 };
 
 int32_t sext(uint32_t offset, int32_t bits);
+
+const char* to_string(InsType type);
