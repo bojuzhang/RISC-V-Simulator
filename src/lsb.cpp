@@ -16,14 +16,14 @@ void LSB::run() {
     if (nowhead == nowtail) return;
     auto p = now[nowhead];
     if (p.qj != -1 || p.qk != -1) return;
-    int32_t pos = p.vj + p.imm;
+    int32_t pos = p.vj + sext(p.imm, 12);
     auto cur = rob->queryData(p.dest);
     cur.nowcir++;
     if (cur.nowcir == 3) {
         cur.val = p.vk;
         cur.valpos = pos;
         cur.state = ROBSTATE::WRITE;
-        nexthead++;
+        nexthead = (nexthead + 1) % 32;
     }
     rob->modifyData(p.dest, cur);
 }
