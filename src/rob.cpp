@@ -19,10 +19,10 @@ void ROB::run() {
     auto p = now[nowhead];
     // std::cerr << (int)p.state << " " << p.pospc << " " << to_string(p.op.Getinst()) << " " << p.op.Getvals()[0] << " " << p.op.Getvals()[1] << " " << p.op.Getvals()[2] << "\n";
      if (p.state == ROBSTATE::COMMIT) {
-        for (int i = 0; i < 32; i++) {
-            std::cout << reg->read(i) << " ";
-        }
-        std::cout << "\n";
+        // for (int i = 0; i < 32; i++) {
+        //     std::cout << reg->read(i) << " ";
+        // }
+        // std::cout << "\n";
         auto updval = [&](int32_t dest, int32_t val) {
             if (dest != -1) {
                 if (reg->getdep(dest) == nowhead) {
