@@ -1,5 +1,4 @@
 #include "tomasulo.hpp"
-#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -23,17 +22,12 @@ void TomasuloCPU::init() {
             uint32_t num;
             ss >> num;
             mem.writeByte(pos, num);
-            // std::cerr << std::dec << pos << " " << num << " " << token << "\n";
             ++pos;
         }
     }
 }
 void TomasuloCPU::run() {
     while (1) {
-        // std::cerr << "pc: " << rob.pc << "\n";
-        // std::ifstream tty("/dev/tty");
-        // std::cout << "Press Enter to continue..." << std::flush;
-        // tty.get();  // 等待用户从终端输入
         if (mem.load(rob.pc, 4) == 0x0ff00513) {
             std::cout << (reg.read(10) & 0xFF) << "\n";
             break;

@@ -4,8 +4,6 @@
 #include "rob.hpp"
 #include <cassert>
 #include <cstdint>
-#include <iostream>
-#include <stdexcept>
 
 void LSB::link(ROB *rob_, Memory *mem_) {
     rob = rob_;
@@ -28,7 +26,6 @@ void LSB::run() {
     rob->modifyData(p.dest, cur);
 }
 void LSB::update() {
-    // std::cerr << "lsb: " << nexthead << " " << nexttail << "\n";
     for (int i = 0; i < 32; i++) {
         now[i] = next[i];
     }

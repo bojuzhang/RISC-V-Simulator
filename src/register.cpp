@@ -1,5 +1,4 @@
 #include "register.hpp"
-#include "iostream"
 
 Register::Register() {
     for (int i = 0; i < 32; i++) {
@@ -27,9 +26,7 @@ void Register::update() {
     for (int i = 0; i < 32; i++) {
         regnow[i] = regnext[i];
         depnow[i] = depnext[i];
-        // std::cerr << regnow[i] << " ";
     }
-    // std::cerr << "\n";
     regnow[0] = regnext[0] = 0;
 }
 
