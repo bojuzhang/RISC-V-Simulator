@@ -21,12 +21,10 @@ void ROB::run() {
     auto p = now[nowhead];
     if (p.state == ROBSTATE::COMMIT) {
         auto updval = [&](int32_t dest, int32_t val) {
-            if (dest != -1) {
-                if (reg->getdep(dest) == nowhead) {
-                    reg->updatedep(dest, -1);
-                }
-                reg->write(dest, val);
+            if (reg->getdep(dest) == nowhead) {
+                reg->updatedep(dest, -1);
             }
+            reg->write(dest, val);
         };
         if (p.op.Getopt() == OpType::B) {
             predictor->update(p.val == p.predictpc);
