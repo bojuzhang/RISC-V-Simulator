@@ -22,7 +22,7 @@ void LSB::run() {
     if (cur.nowcir == 3) {
         cur.val = p.vk;
         cur.valpos = pos;
-        cur.state = ROBSTATE::WRITE;
+        cur.state = ROBSTATE::COMMIT;
         nexthead = (nexthead + 1) % 32;
     }
     rob->modifyData(p.dest, cur);

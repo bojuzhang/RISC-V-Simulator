@@ -88,7 +88,7 @@ void RS::run() {
             cur.val += cur.pospc;
         }
         cur.nowcir = 1;
-        cur.state = ROBSTATE::WRITE;
+        cur.state = ROBSTATE::COMMIT;
         rob->modifyData(p.dest, cur);
         visnext[i] = 0;
     }

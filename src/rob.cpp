@@ -160,8 +160,6 @@ void ROB::run() {
                 rs->addData(data);
             }
 
-            
-
             if (p.op.Getopt() != OpType::B && p.op.Getopt() != OpType::S) {
                 // if (p.op.Getinst() == InsType::ADDI) {
                 //     std::cerr << "wooooooooops issue! " << p.op.Getvals()[0] << " " << i << "\n";
@@ -170,16 +168,6 @@ void ROB::run() {
             }
             next[i].state = ROBSTATE::EXEC;
             break;
-        } else if (p.state == ROBSTATE::WRITE) {
-            // std::cerr << "WRITE STAGE\n";
-            next[i].state = ROBSTATE::COMMIT;
-            // if (p.dest == -1) return;
-            // std::cerr << "WRITE STAGE " << i << "\n";
-            // if (next[i].op.Getopt() != OpType::IM) {
-                // lsb->delDep(i, p.val);
-                // rs->delDep(i, p.val);
-            // }
-            // break;
         }
     }
 }

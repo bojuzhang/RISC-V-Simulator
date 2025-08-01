@@ -8,7 +8,7 @@
 #include "rs.hpp"
 #include <cstdint>
 enum class ROBSTATE {
-    ISSUE, EXEC, WRITE, COMMIT
+    ISSUE, EXEC, COMMIT
 };
 
 struct ROBData {
