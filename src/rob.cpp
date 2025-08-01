@@ -1,16 +1,18 @@
 #include "rob.hpp"
 #include "basic_operator.hpp"
 #include "lsb.hpp"
+#include "predictor.hpp"
 #include "register.hpp"
 #include "rs.hpp"
 #include <cstdint>
 #include <iostream>
 
-void ROB::link(Register *reg_, RS *rs_, LSB *lsb_, Memory *mem_) {
+void ROB::link(Register *reg_, RS *rs_, LSB *lsb_, Memory *mem_, Predictor *pre_) {
     reg = reg_;
     rs = rs_;
     lsb = lsb_;
     mem = mem_;
+    predictor = pre_;
 }
 
 void ROB::run() {
@@ -21,7 +23,7 @@ void ROB::run() {
     // std::cerr << "test dep " << reg->getdep(15) << "\n"; 
     if (p.state == ROBSTATE::COMMIT) {
         // std::cerr << p.pospc << " " << to_string(p.op.Getinst()) << " " << p.op.Getvals()[0] << " " << p.op.Getvals()[1] << " " << p.op.Getvals()[2] << "\n";
-        ++cnt;
+        // ++cnt;
         // std::cout << p.pospc << "\n";
         // for (int i = 0; i < 32; i++) {
         //     std::cout << reg->read(i) << " ";
@@ -39,7 +41,7 @@ void ROB::run() {
             }
         };
         if (p.op.Getopt() == OpType::B) {
-            predictor.update(p.val == p.predictpc);
+            predictor->update(p.val == p.predictpc);
             // std::cerr << "B-type " << p.val << " " << p.predictpc << "\n";
             if (p.val != p.predictpc) {
                 nextpc = p.val;
@@ -208,7 +210,7 @@ void ROB::addOP() {
     ROBData data;
     data.op = op;
     data.pospc = pc;
-    auto predicted =  predictor.predict();
+    auto predicted =  predictor->predict();
     if (op.Getopt() == OpType::B) {
         nextpc = predicted ? pc + sext(op.Getvals()[2], 13) : pc + 4;
         data.predictpc = nextpc;

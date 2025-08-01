@@ -5,7 +5,7 @@
 #include <string>
 
 TomasuloCPU::TomasuloCPU() {
-    rob.link(&reg, &rs, &lsb, &mem);
+    rob.link(&reg, &rs, &lsb, &mem, &pre);
     rs.link(&rob, &mem);
     lsb.link(&rob, &mem);
 }
@@ -48,4 +48,6 @@ void TomasuloCPU::run() {
         lsb.update();
         reg.update();
     }
+
+    pre.show();
 }

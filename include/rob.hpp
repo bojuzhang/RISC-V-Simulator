@@ -36,12 +36,12 @@ private:
     LSB *lsb;
     Memory *mem;
 
-    Predictor predictor;  
+    Predictor *predictor;  
 
 public:
     int pc, nextpc;
 
-    void link(Register *, RS *, LSB *, Memory *);
+    void link(Register *, RS *, LSB *, Memory *, Predictor *);
 
     void run();
     void update();

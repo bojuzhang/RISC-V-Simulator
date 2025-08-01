@@ -2,6 +2,7 @@
 
 #include "lsb.hpp"
 #include "memory.hpp"
+#include "predictor.hpp"
 #include "register.hpp"
 class TomasuloCPU {
 private:
@@ -10,6 +11,7 @@ private:
     RS rs;
     ROB rob;
     Register reg;
+    Predictor pre;
 
 public:
     TomasuloCPU();
