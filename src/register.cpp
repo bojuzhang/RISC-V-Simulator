@@ -19,6 +19,7 @@ uint32_t Register::getdep(short pos) {
     return depnow[pos];
 }
 void Register::updatedep(short pos, int32_t val) {
+    if (pos == 0) return;
     depnext[pos] = val;
 }
 

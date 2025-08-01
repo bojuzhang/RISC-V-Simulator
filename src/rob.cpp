@@ -14,16 +14,21 @@ void ROB::link(Register *reg_, RS *rs_, LSB *lsb_, Memory *mem_) {
 }
 
 void ROB::run() {
+    static int cnt = 0;
     addOP();
     if (nowhead == nowtail) return;
     auto p = now[nowhead];
     // std::cerr << "test dep " << reg->getdep(15) << "\n"; 
     if (p.state == ROBSTATE::COMMIT) {
         // std::cerr << p.pospc << " " << to_string(p.op.Getinst()) << " " << p.op.Getvals()[0] << " " << p.op.Getvals()[1] << " " << p.op.Getvals()[2] << "\n";
+        ++cnt;
+        // std::cout << p.pospc << "\n";
         // for (int i = 0; i < 32; i++) {
         //     std::cout << reg->read(i) << " ";
         // }
         // std::cout << "\n";
+        // std::cerr << "mem test: " << mem->load(4528, 4) << "\n";
+        // if (cnt == 6128) exit(0);
         // std::cerr << "test dep " << reg->getdep(15) << "\n"; 
         auto updval = [&](int32_t dest, int32_t val) {
             if (dest != -1) {
@@ -35,6 +40,7 @@ void ROB::run() {
         };
         if (p.op.Getopt() == OpType::B) {
             predictor.update(p.val == p.predictpc);
+            // std::cerr << "B-type " << p.val << " " << p.predictpc << "\n";
             if (p.val != p.predictpc) {
                 nextpc = p.val;
                 clear();
@@ -48,6 +54,7 @@ void ROB::run() {
         } else if (p.op.Getinst() == InsType::SH) {
             mem->store(p.valpos, p.val, 2);
         } else if (p.op.Getinst() == InsType::SW) {
+            // std::cerr << "test sw " << p.valpos << " " << p.val << "\n"; 
             mem->store(p.valpos, p.val, 4);
         } else if (p.op.Getinst() == InsType::LB) {
             auto val = sext(mem->load(p.valpos, 1), 8);
@@ -57,26 +64,22 @@ void ROB::run() {
         } else if (p.op.Getinst() == InsType::LH) {
             auto val = sext(mem->load(p.valpos, 2), 16);
             updval(p.op.Getvals()[0], val);
-            next[nowhead].val = val;
             lsb->delDep(nowhead, val);
             rs->delDep(nowhead, val);
         } else if (p.op.Getinst() == InsType::LW) {
             auto val = static_cast<int32_t>(mem->load(p.valpos, 4));
-            // std::cerr << "test lw " << p.op.Getvals()[0] << " " << val << "\n";
+            // std::cerr << "test lw " << p.op.Getvals()[0] << " " << val << " " << p.valpos << "\n";
             updval(p.op.Getvals()[0], val);
-            next[nowhead].val = val;
             lsb->delDep(nowhead, val);
             rs->delDep(nowhead, val);
         } else if (p.op.Getinst() == InsType::LBU) {
             auto val = mem->load(p.valpos, 1);
             updval(p.op.Getvals()[0], val);
-            next[nowhead].val = val;
             lsb->delDep(nowhead, val);
             rs->delDep(nowhead, val);
         } else if (p.op.Getinst() == InsType::LHU) {
             auto val = mem->load(p.valpos, 2);
             updval(p.op.Getvals()[0], val);
-            next[nowhead].val = val;
             lsb->delDep(nowhead, val);
             rs->delDep(nowhead, val);
         } else if (p.op.Getinst() == InsType::JALR) {
@@ -90,13 +93,11 @@ void ROB::run() {
                 return;
             }
             updval(p.op.Getvals()[0], p.pospc + 4);
-            next[nowhead].val = p.pospc + 4;
             lsb->delDep(nowhead, p.pospc + 4);
             rs->delDep(nowhead, p.pospc + 4);
         } else if (p.op.Getinst() == InsType::JAL) {
             // std::cerr << "JAL " << p.op.Getvals()[0] << " " << p.pospc << "\n";
             updval(p.op.Getvals()[0], p.pospc + 4);
-            next[nowhead].val = p.pospc + 4;
             lsb->delDep(nowhead, p.pospc + 4);
             rs->delDep(nowhead, p.pospc + 4);
         } else {
@@ -121,23 +122,13 @@ void ROB::run() {
                     if (dep == -1) {
                         v = reg->read(rs);
                     } else {
-                        if (next[dep].state == ROBSTATE::COMMIT) {
-                            // if (next[dep].op.Getopt() != OpType::IM && next[dep].op.Getopt() != OpType::IC 
-                            // && next[dep].op.Getopt() != OpType::J) {
-                            //     v = next[dep].val;
-                            // } else {
-                            //     q = dep;
-                            // }
-                            v = next[dep].val;
-                        } else {
-                            q = dep;
-                        }
+                        q = dep;
                     }
                 };
                  if (p.op.Getopt() == OpType::S) {
                     work(data.qj, data.vj, p.op.Getvals()[0]);
                     work(data.qk, data.vk, p.op.Getvals()[1]);
-                    // std::cerr << "test SW " << i << " " << data.qj << " " << data.qk << "\n";
+                    // std::cerr << "test SW issue " << i << " " << data.qj << " " << data.qk << " " << data.vj << " " << data.vk << "\n";
                 } else {
                     work(data.qj, data.vj, p.op.Getvals()[1]);
                 }
@@ -156,17 +147,7 @@ void ROB::run() {
                     if (dep == -1) {
                         v = reg->read(rs);
                     } else {
-                        if (next[dep].state == ROBSTATE::COMMIT) {
-                            // if (next[dep].op.Getopt() != OpType::IM && next[dep].op.Getopt() != OpType::IC 
-                            // && next[dep].op.Getopt() != OpType::J) {
-                            //     v = next[dep].val;
-                            // } else {
-                            //     q = dep;
-                            // }
-                            v = next[dep].val;
-                        } else {
-                            q = dep;
-                        }
+                        q = dep;
                     }
                 };
                 work(data.qj, data.vj, rs1);
@@ -179,7 +160,12 @@ void ROB::run() {
                 rs->addData(data);
             }
 
+            
+
             if (p.op.Getopt() != OpType::B && p.op.Getopt() != OpType::S) {
+                // if (p.op.Getinst() == InsType::ADDI) {
+                //     std::cerr << "wooooooooops issue! " << p.op.Getvals()[0] << " " << i << "\n";
+                // }
                 reg->updatedep(p.op.Getvals()[0], i);
             }
             next[i].state = ROBSTATE::EXEC;
@@ -193,7 +179,7 @@ void ROB::run() {
                 // lsb->delDep(i, p.val);
                 // rs->delDep(i, p.val);
             // }
-            break;
+            // break;
         }
     }
 }
