@@ -33,14 +33,14 @@ void TomasuloCPU::run() {
             break;
         }
 
+        lsb.run();
         rob.run();
         rs.run();
-        lsb.run();
 
-        rob.update();
-        rs.update();
-        lsb.update();
         reg.update();
+        rs.update();
+        rob.update();
+        lsb.update();
     }
 
     pre.show();
