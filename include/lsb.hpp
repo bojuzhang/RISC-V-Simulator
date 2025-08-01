@@ -9,7 +9,7 @@ struct LSBData {
     InsType ins;
     uint32_t vj = 0, vk = 0;
     int32_t qj = -1, qk = -1;
-    int32_t imm = 0;
+    uint32_t imm = 0;
     int32_t dest = -1;
 };
 

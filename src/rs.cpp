@@ -80,7 +80,7 @@ void RS::run() {
         auto p = now[i];
         if (p.qj != -1 || p.qk != -1) continue;
         auto res = calc(p.ins, p.vj, p.vk, p.imm);
-        // std::cerr << to_string(p.ins) << " " << p.vj << " " << p.vk << " " << p.imm << '\n';
+        // std::cerr << "rs run:" << i << " " << to_string(p.ins) << " " << p.vj << " " << p.vk << " " << p.imm << '\n';
         auto cur = rob->queryData(p.dest);
         cur.val = res;
         if (p.ins == InsType::BEQ || p.ins == InsType::BGE || p.ins == InsType::BGEU
@@ -129,6 +129,7 @@ void RS::delDep(int32_t idx, uint32_t val) {
     for (int i = 0; i < 32; i++) {
         if (!visnext[i]) continue;
         auto &p = next[i];
+        // std::cerr << "delrs" << i << " " << p.qj << " " << p.qk << " " << idx << " " << val << "\n";
         if (p.qj == idx) {
             p.qj = -1;
             p.vj = val;

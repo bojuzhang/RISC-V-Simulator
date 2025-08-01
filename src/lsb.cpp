@@ -50,8 +50,9 @@ void LSB::addData(const LSBData &data) {
 
 void LSB::delDep(int32_t idx, uint32_t val) {
     if (nexthead == nexttail) return;
-    for (int i = nexthead; (i + 1) % 32 != nexttail; i = (i + 1) % 32) {
+    for (int i = nexthead; i != nexttail; i = (i + 1) % 32) {
         auto &p = next[i];
+        // std::cerr << "deltest " << i << " " << p.qj << " " << p.qk << " " << idx << "\n";
         if (p.qj == idx) {
             p.qj = -1;
             p.vj = val;

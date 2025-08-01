@@ -17,16 +17,18 @@ void ROB::run() {
     addOP();
     if (nowhead == nowtail) return;
     auto p = now[nowhead];
-    // std::cerr << (int)p.state << " " << p.pospc << " " << to_string(p.op.Getinst()) << " " << p.op.Getvals()[0] << " " << p.op.Getvals()[1] << " " << p.op.Getvals()[2] << "\n";
-     if (p.state == ROBSTATE::COMMIT) {
+    // std::cerr << "test dep " << reg->getdep(15) << "\n"; 
+    if (p.state == ROBSTATE::COMMIT) {
+        // std::cerr << p.pospc << " " << to_string(p.op.Getinst()) << " " << p.op.Getvals()[0] << " " << p.op.Getvals()[1] << " " << p.op.Getvals()[2] << "\n";
         // for (int i = 0; i < 32; i++) {
         //     std::cout << reg->read(i) << " ";
         // }
         // std::cout << "\n";
+        // std::cerr << "test dep " << reg->getdep(15) << "\n"; 
         auto updval = [&](int32_t dest, int32_t val) {
             if (dest != -1) {
                 if (reg->getdep(dest) == nowhead) {
-                    reg->updatedep(nowhead, -1);
+                    reg->updatedep(dest, -1);
                 }
                 reg->write(dest, val);
             }
@@ -50,18 +52,33 @@ void ROB::run() {
         } else if (p.op.Getinst() == InsType::LB) {
             auto val = sext(mem->load(p.valpos, 1), 8);
             updval(p.op.Getvals()[0], val);
+            lsb->delDep(nowhead, val);
+            rs->delDep(nowhead, val);
         } else if (p.op.Getinst() == InsType::LH) {
             auto val = sext(mem->load(p.valpos, 2), 16);
             updval(p.op.Getvals()[0], val);
+            next[nowhead].val = val;
+            lsb->delDep(nowhead, val);
+            rs->delDep(nowhead, val);
         } else if (p.op.Getinst() == InsType::LW) {
             auto val = static_cast<int32_t>(mem->load(p.valpos, 4));
+            // std::cerr << "test lw " << p.op.Getvals()[0] << " " << val << "\n";
             updval(p.op.Getvals()[0], val);
+            next[nowhead].val = val;
+            lsb->delDep(nowhead, val);
+            rs->delDep(nowhead, val);
         } else if (p.op.Getinst() == InsType::LBU) {
             auto val = mem->load(p.valpos, 1);
             updval(p.op.Getvals()[0], val);
+            next[nowhead].val = val;
+            lsb->delDep(nowhead, val);
+            rs->delDep(nowhead, val);
         } else if (p.op.Getinst() == InsType::LHU) {
             auto val = mem->load(p.valpos, 2);
             updval(p.op.Getvals()[0], val);
+            next[nowhead].val = val;
+            lsb->delDep(nowhead, val);
+            rs->delDep(nowhead, val);
         } else if (p.op.Getinst() == InsType::JALR) {
             if (p.val != p.predictpc) {
                 // std::cerr << "JALR " << p.val << " " << p.predictpc << "\n";
@@ -73,78 +90,116 @@ void ROB::run() {
                 return;
             }
             updval(p.op.Getvals()[0], p.pospc + 4);
+            next[nowhead].val = p.pospc + 4;
+            lsb->delDep(nowhead, p.pospc + 4);
+            rs->delDep(nowhead, p.pospc + 4);
         } else if (p.op.Getinst() == InsType::JAL) {
             // std::cerr << "JAL " << p.op.Getvals()[0] << " " << p.pospc << "\n";
             updval(p.op.Getvals()[0], p.pospc + 4);
+            next[nowhead].val = p.pospc + 4;
+            lsb->delDep(nowhead, p.pospc + 4);
+            rs->delDep(nowhead, p.pospc + 4);
         } else {
             updval(p.op.Getvals()[0], p.val);
+            lsb->delDep(nowhead, p.val);
+            rs->delDep(nowhead, p.val);
         }
         nexthead = (nexthead + 1) % 32;
-    } else if (p.state == ROBSTATE::ISSUE) {
-        if (p.op.Getopt() == OpType::S || p.op.Getopt() == OpType::IM) {
-            LSBData data;
-            data.ins = p.op.Getinst();
-            data.imm = p.op.Getvals()[2];
-            data.dest = nowhead;
-            
-            auto work = [&](int32_t &q, uint32_t &v, uint32_t rs) {
-                int dep = reg->getdep(rs);
-                if (dep == -1) {
-                    v = reg->read(rs);
-                } else {
-                    if (next[dep].state == ROBSTATE::COMMIT) {
-                        v = next[dep].val;
+        return;
+    } 
+    for (int i = nowhead; i != nowtail; i = (i + 1) % 32) {
+        auto p = now[i];
+        if (p.state == ROBSTATE::ISSUE) {
+            if (p.op.Getopt() == OpType::S || p.op.Getopt() == OpType::IM) {
+                LSBData data;
+                data.ins = p.op.Getinst();
+                data.imm = p.op.Getvals()[2];
+                data.dest = i;
+                
+                auto work = [&](int32_t &q, uint32_t &v, uint32_t rs) {
+                    int dep = reg->getdep(rs);
+                    if (dep == -1) {
+                        v = reg->read(rs);
                     } else {
-                        q = dep;
+                        if (next[dep].state == ROBSTATE::COMMIT) {
+                            // if (next[dep].op.Getopt() != OpType::IM && next[dep].op.Getopt() != OpType::IC 
+                            // && next[dep].op.Getopt() != OpType::J) {
+                            //     v = next[dep].val;
+                            // } else {
+                            //     q = dep;
+                            // }
+                            v = next[dep].val;
+                        } else {
+                            q = dep;
+                        }
                     }
+                };
+                 if (p.op.Getopt() == OpType::S) {
+                    work(data.qj, data.vj, p.op.Getvals()[0]);
+                    work(data.qk, data.vk, p.op.Getvals()[1]);
+                    // std::cerr << "test SW " << i << " " << data.qj << " " << data.qk << "\n";
+                } else {
+                    work(data.qj, data.vj, p.op.Getvals()[1]);
                 }
-            };
-            if (p.op.Getopt() == OpType::S) {
-                work(data.qj, data.vj, p.op.Getvals()[0]);
-                work(data.qk, data.vk, p.op.Getvals()[1]);
+                lsb->addData(data);
             } else {
-                work(data.qj, data.vj, p.op.Getvals()[1]);
-            }
-            lsb->addData(data);
-        } else {
-            RSData data;
-            data.ins = p.op.Getinst();
-            data.imm = p.op.Getvals()[2];
-            data.dest = nowhead;
-            auto rs1 = p.op.Getvals()[1], rs2 = p.op.Getvals()[2];
-            if (p.op.Getopt() == OpType::B) {
-                rs1 = p.op.Getvals()[0], rs2 = p.op.Getvals()[1];
-            }
-            auto work = [&](int32_t &q, uint32_t &v, uint32_t rs) {
-                int dep = reg->getdep(rs);
-                if (dep == -1) {
-                    v = reg->read(rs);
-                } else {
-                    if (next[dep].state == ROBSTATE::COMMIT) {
-                        v = next[dep].val;
-                    } else {
-                        q = dep;
-                    }
+                RSData data;
+                data.ins = p.op.Getinst();
+                data.imm = p.op.Getvals()[2];
+                data.dest = i;
+                auto rs1 = p.op.Getvals()[1], rs2 = p.op.Getvals()[2];
+                if (p.op.Getopt() == OpType::B) {
+                    rs1 = p.op.Getvals()[0], rs2 = p.op.Getvals()[1];
                 }
-            };
-            work(data.qj, data.vj, rs1);
-            if (p.op.Getopt() == OpType::R || p.op.Getopt() == OpType::B) {
-                work(data.qk, data.vk, rs2);
+                auto work = [&](int32_t &q, uint32_t &v, uint32_t rs) {
+                    int dep = reg->getdep(rs);
+                    if (dep == -1) {
+                        v = reg->read(rs);
+                    } else {
+                        if (next[dep].state == ROBSTATE::COMMIT) {
+                            // if (next[dep].op.Getopt() != OpType::IM && next[dep].op.Getopt() != OpType::IC 
+                            // && next[dep].op.Getopt() != OpType::J) {
+                            //     v = next[dep].val;
+                            // } else {
+                            //     q = dep;
+                            // }
+                            v = next[dep].val;
+                        } else {
+                            q = dep;
+                        }
+                    }
+                };
+                work(data.qj, data.vj, rs1);
+                if (p.op.Getopt() == OpType::R || p.op.Getopt() == OpType::B) {
+                    work(data.qk, data.vk, rs2);
+                }
+                // if (p.op.Getinst() == InsType::JALR) {
+                    // std::cerr << "JALR woooooooops! " << data.qj << " " << data.vj << " " << data.qk << " " << data.vk << "\n";
+                // }
+                rs->addData(data);
             }
-            rs->addData(data);
+
+            if (p.op.Getopt() != OpType::B && p.op.Getopt() != OpType::S) {
+                reg->updatedep(p.op.Getvals()[0], i);
+            }
+            next[i].state = ROBSTATE::EXEC;
+            break;
+        } else if (p.state == ROBSTATE::WRITE) {
+            // std::cerr << "WRITE STAGE\n";
+            next[i].state = ROBSTATE::COMMIT;
+            // if (p.dest == -1) return;
+            // std::cerr << "WRITE STAGE " << i << "\n";
+            // if (next[i].op.Getopt() != OpType::IM) {
+                // lsb->delDep(i, p.val);
+                // rs->delDep(i, p.val);
+            // }
+            break;
         }
-        next[nowhead].state = ROBSTATE::EXEC;
-    } else if (p.state == ROBSTATE::WRITE) {
-        // std::cerr << "WRITE STAGE\n";
-        next[nowhead].state = ROBSTATE::COMMIT;
-        // if (p.dest == -1) return;
-        lsb->delDep(nowhead, p.val);
-        rs->delDep(nowhead, p.val);
     }
 }
 void ROB::update() {
     // std::cerr << nexthead << " " << nexttail << "\n";
-    // for (int i = nexthead; (i + 1) % 32 != nexttail; i = (i + 1) % 32) {
+    // for (int i = nexthead; i != nexttail; i = (i + 1) % 32) {
     //     std::cerr << i << " " << to_string(next[i].op.Getinst()) << " " << (int)next[i].state << "\n";
     // }
 
@@ -172,6 +227,10 @@ void ROB::addOP() {
     if ((nexttail + 1) % 32 == nexthead) return;
     
     Operator op = mem->getOp(pc);
+    // std::cerr << pc << "\n";
+    if (op.Getopt() == OpType::EXIT) {
+        return;
+    }
     ROBData data;
     data.op = op;
     data.pospc = pc;
